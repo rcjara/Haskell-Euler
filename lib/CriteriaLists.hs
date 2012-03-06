@@ -22,5 +22,7 @@ grabHead xs i = (item, remaining)
           | n == i    = tail xs'
           | otherwise = xs'
 
+findMax :: Ord b => (a -> b) -> CritList a -> Int
+
 lst :: CritList Int
 lst = map (\n-> [1..n]) [1..8]
