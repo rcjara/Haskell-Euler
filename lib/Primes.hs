@@ -2,17 +2,21 @@ module Primes
 ( isPrime
 , primes
 , factors
+, divides
 ) where
 
+
+divides :: Integral a => a -> a -> Bool
+divides x = (== 0) . mod x
 
 primes :: [Integer]
 primes = 2 : filter isPrime [3, 5..]
 
 isPrime :: Integer -> Bool
-isPrime x = not $ or $ map divides shtPrimes
+isPrime x = not $ any divs shtPrimes
   where
-    divides = (== 0) . mod x
-    shtPrimes = takeWhile (\n-> n^2 < x) primes
+    divs = (== 0) . mod x
+    shtPrimes = takeWhile (\n-> n^2 <= x) primes
 
 factors :: Integer -> [Integer]
 factors x = subFactors primes x []

@@ -1,4 +1,4 @@
-module P004 ( solve ) where
+module Problems.P004 ( solve ) where
 
 import Data.List (find, concatMap, sortBy)
 import Palindrome
