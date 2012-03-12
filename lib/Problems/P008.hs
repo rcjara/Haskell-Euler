@@ -1,5 +1,6 @@
 module Problems.P008 where
 import Data.Char (digitToInt)
+import Iterations (mapByGroups)
 
 
 numAsStr = foldl1 (++) [
@@ -26,3 +27,6 @@ numAsStr = foldl1 (++) [
   ]
 
 numAsArray = map digitToInt numAsStr
+
+solve :: Int
+solve = maximum $ mapByGroups product 5 numAsArray
