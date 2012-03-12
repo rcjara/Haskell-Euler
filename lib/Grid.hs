@@ -78,3 +78,9 @@ allPathsForGrid g l = concatMap (\c -> pathsForGridCoord g c l) $ coordsForRange
 
 pathToVals :: Grid a -> [Coord] -> [a]
 pathToVals g cs = map (grabCoord g) cs
+
+readGrid :: String -> Grid Int
+readGrid = fromLists . lists
+  where
+    lists :: String -> [[Int]]
+    lists = map (map read) . map words . lines
