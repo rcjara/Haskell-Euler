@@ -1,10 +1,11 @@
 module Problems.P375
 ( modVal
 , randNums
-, factModval
-, randFactors
+, indexOfRand
+, nMinForRange
 , ranges
-, minForRange
+, naive
+, accumulate
 ) where
 
 import Data.List
@@ -48,15 +49,16 @@ ranges n = concatMap makeLowerRange [1..n]
 naive :: (Integral a) => Int -> a
 naive = sum . map nMinForRange . ranges
 
-accumulated = (Integral a) => (Int, a, Map a Int) -> (Int, a, Map a Int)
-accumulated (prevIndex, val, map) = (index, newVal, newMap)
+accumulate :: (Integral a) => (Int, a, Map.Map a Int) -> (Int, a, Map.Map a Int)
+accumulate (prevIndex, val, map) = (index, newVal, newMap)
   where
     index = prevIndex + 1
-    newMap = Map.insert (fst randTup) (scd randTup) map
+    newMap = Map.insert (fst randTup) (snd randTup) map
       where randTup = indexOfRand index
     lst = Map.toList newMap
-    thisVal = minimum $ map getValForRange $ ranges index
+    newVal = minimum $ Prelude.map getValForRange $ makeRange index
       where
+        makeRange upper = Prelude.map (\lower -> (lower, upper)) [1..upper]
         getValForRange (i, j) = extract theVal
           where
             extract (Just (val', index')) = val'
