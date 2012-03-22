@@ -6,6 +6,8 @@ module Problems.P375
 , ranges
 , naive
 , accumulate
+, accumulateSolve
+, startTuple
 ) where
 
 import Data.List
@@ -49,6 +51,16 @@ ranges n = concatMap makeLowerRange [1..n]
 naive :: (Integral a) => Int -> a
 naive = sum . map nMinForRange . ranges
 
+accumulateSolve :: (Integral a) => Int -> a
+accumulateSolve n = nextAccumulate startTuple n
+  where
+    nextAccumulate (_, val, _) 0 = val
+    nextAccumulate tup n = nextAccumulate (accumulate tup) (n - 1)
+
+startTuple :: (Integral a) => (Int, a, Map.Map a Int)
+startTuple = (0, 0, Map.empty)
+
+
 accumulate :: (Integral a) => (Int, a, Map.Map a Int) -> (Int, a, Map.Map a Int)
 accumulate (prevIndex, val, map) = (index, newVal, newMap)
   where
@@ -56,7 +68,8 @@ accumulate (prevIndex, val, map) = (index, newVal, newMap)
     newMap = Map.insert (fst randTup) (snd randTup) map
       where randTup = indexOfRand index
     lst = Map.toList newMap
-    newVal = minimum $ Prelude.map getValForRange $ makeRange index
+    newVal = val + totalForThisIndex
+    totalForThisIndex = sum $ Prelude.map getValForRange $ makeRange index
       where
         makeRange upper = Prelude.map (\lower -> (lower, upper)) [1..upper]
         getValForRange (i, j) = extract theVal
@@ -64,4 +77,4 @@ accumulate (prevIndex, val, map) = (index, newVal, newMap)
             extract (Just (val', index')) = val'
             extract Nothing = 0
             theVal = find inRange lst
-            inRange (val, lstIndex) = i >= lstIndex && j <= lstIndex
+            inRange (val, lstIndex) = i <= lstIndex && j >= lstIndex
