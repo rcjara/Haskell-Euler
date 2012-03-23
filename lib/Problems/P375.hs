@@ -5,14 +5,14 @@ module Problems.P375
 , nMinForRange
 , ranges
 , naive
-, accumulate
-, accumulateSolve
-, startTuple
+, mapAccumulate
+, mapSolve
+, mapTuple
 ) where
 
 import Data.List
 import Primes
-import qualified Data.Map as Map
+import qualified Data.Map as M
 
 modVal :: Integral a => a
 modVal = 50515093
@@ -51,23 +51,23 @@ ranges n = concatMap makeLowerRange [1..n]
 naive :: (Integral a) => Int -> a
 naive = sum . map nMinForRange . ranges
 
-accumulateSolve :: (Integral a) => Int -> a
-accumulateSolve n = nextAccumulate startTuple n
+mapSolve :: (Integral a) => Int -> a
+mapSolve n = nextTerm mapTuple n
   where
-    nextAccumulate (_, val, _) 0 = val
-    nextAccumulate tup n = nextAccumulate (accumulate tup) (n - 1)
+    nextTerm (_, val, _) 0 = val
+    nextTerm tup n = nextTerm (mapAccumulate tup) (n - 1)
 
-startTuple :: (Integral a) => (Int, a, Map.Map a Int)
-startTuple = (0, 0, Map.empty)
+mapTuple :: (Integral a) => (Int, a, M.Map a Int)
+mapTuple = (0, 0, M.empty)
 
 
-accumulate :: (Integral a) => (Int, a, Map.Map a Int) -> (Int, a, Map.Map a Int)
-accumulate (prevIndex, val, map) = (index, newVal, newMap)
+mapAccumulate :: (Integral a) => (Int, a, M.Map a Int) -> (Int, a, M.Map a Int)
+mapAccumulate (prevIndex, val, map) = (index, newVal, newMap)
   where
     index = prevIndex + 1
-    newMap = Map.insert (fst randTup) (snd randTup) map
+    newMap = M.insert (fst randTup) (snd randTup) map
       where randTup = indexOfRand index
-    lst = Map.toList newMap
+    lst = M.toList newMap
     newVal = val + totalForThisIndex
     totalForThisIndex = sum $ Prelude.map getValForRange $ makeRange index
       where
@@ -78,3 +78,33 @@ accumulate (prevIndex, val, map) = (index, newVal, newMap)
             extract Nothing = 0
             theVal = find inRange lst
             inRange (val, lstIndex) = i <= lstIndex && j >= lstIndex
+
+listSolve :: Int -> Integer
+listSolve n = nextTerm listTuple n
+  where
+    nextTerm (_, _, _, val, _, _) 0 = val
+    nextTerm tup n = nextTerm (listAccumulate tup) (n - 1)
+
+listTuple :: ([Integer], Integer, Integer, Integer, Integer, [Integer])
+listTuple = ((rands), head rands, 0, 0, 0, [])
+  where rands = tail randNums
+
+listSteps = nextStep listTuple
+  where
+    nextStep tup = (rel tup') : nextStep tup'
+      where
+        tup' = listAccumulate tup
+        rel (_, a, b, c, d, e) = (a, b, c, d, e)
+
+listAccumulate :: ([Integer], Integer, Integer, Integer, Integer, [Integer]) -> ([Integer], Integer, Integer, Integer, Integer, [Integer])
+listAccumulate ((randNum:randNums), oldMin, numsInMin, runningTot, toAdd, residNums) = (randNums, newMin, newNumsInMin, newTot, newToAdd, newResidNums)
+  where
+    newResidNums = fst theSpan
+    newMin = min oldMin randNum
+    newNumsInMin = numsInMin + (toInteger $ length higherNums)
+    newTot = runningTot + newToAdd
+    newToAdd = toAdd + randNum - decrementToAdd - decrementedMins
+    decrementedMins = (oldMin - newMin) * numsInMin
+    theSpan = span (<= randNum) $ insert randNum residNums
+    decrementToAdd = sum $ Prelude.map (subtract randNum) higherNums
+    higherNums = snd theSpan
