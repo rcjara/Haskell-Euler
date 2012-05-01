@@ -3,8 +3,10 @@ module Primes
 , primes
 , factors
 , divides
+, numDivisors
 ) where
 
+import Data.List (groupBy)
 
 divides :: Integral a => a -> a -> Bool
 divides x = (== 0) . mod x
@@ -27,3 +29,8 @@ factors x = subFactors primes x []
       | p^2 > n        = n:fs
       | n `mod` p == 0 = subFactors ps' (n `div` p) (p:fs)
       | otherwise      = subFactors ps n fs
+
+numDivisors :: Integer -> Int
+numDivisors = product . map succ . factorLengths
+  where
+    factorLengths = map length . groupBy (==) . factors
